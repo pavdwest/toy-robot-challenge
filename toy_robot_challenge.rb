@@ -101,7 +101,7 @@ class Robot
             #     puts("Ignoring out of bounds move.")
             end
 
-            puts("Location is: #{@location.to_s}")
+            # puts("Location is: #{@location.to_s}")
         # else
         #     puts("Ignoring command. Requires a PLACE command first.")
         end
@@ -125,8 +125,7 @@ t = Tabletop.new(5, 5)
 r = Robot.new()
 
 # Process moves
-moves = File.readlines("moves1.txt", chomp: true)
-moves.each do |m|
+File.readlines("moves3.txt", chomp: true).each do |m|
     if m.match(/PLACE [0-9]*,[0-9]*,(NORTH|EAST|SOUTH|WEST)/)
         params = m[6..m.size].split(",")
         r.place(t,
@@ -136,8 +135,8 @@ moves.each do |m|
         )
     elsif m.match(/(MOVE|LEFT|RIGHT|REPORT)/)
         r.send(m.downcase)
-    else
-        puts("You are talking gibberish")
+    # else
+    #     puts("You are talking gibberish")
     end
 end
 
