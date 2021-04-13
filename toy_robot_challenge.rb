@@ -1,7 +1,3 @@
-require 'pry'
-
-# https://github.com/edrans/toy-robot-challenge
-
 Vector = Struct.new(:x, :y)
 class Vector
     def +(vector)
@@ -70,9 +66,7 @@ class Tabletop
 end
 
 class Robot
-    attr_accessor :location, :facing
-    attr_accessor :tabletop
-    attr_accessor :has_been_placed
+    attr_reader :location, :facing, :tabletop, :has_been_placed
 
     def place(tabletop, x, y, facing)
         desired_location = Vector.new(x, y)
@@ -81,29 +75,14 @@ class Robot
             @location = desired_location
             @facing = facing
             @has_been_placed = true
-            # puts("PLACE #{@location.x},#{@location.y},#{CompassDirection.get_direction_text_from_index(@facing)}")
-        # else
-        #     puts("Tried to place out of bounds.")
         end
     end
 
     def move()
-        # Ensure that we've been placed first
         if @has_been_placed
             move_delta = DeltaMovements::get_delta_movement_in_direction(@facing)
             requested_location = Vector.new(@location.x + move_delta.x, @location.y + move_delta.y)
-            is_allowed = @tabletop.is_in_bounds(requested_location)
-
-            if(is_allowed)
-                @location = requested_location
-                # puts("Moving to new location.")
-            # else
-            #     puts("Ignoring out of bounds move.")
-            end
-
-            # puts("Location is: #{@location.to_s}")
-        # else
-        #     puts("Ignoring command. Requires a PLACE command first.")
+            @location = requested_location if @tabletop.is_in_bounds(requested_location)
         end
     end
 
@@ -121,23 +100,21 @@ class Robot
 end
 
 # Create objects
-t = Tabletop.new(5, 5)
-r = Robot.new()
+tabletop = Tabletop.new(5, 5)
+robot = Robot.new()
 
 # Process moves
 File.readlines("moves3.txt", chomp: true).each do |m|
-    if m.match(/PLACE [0-9]*,[0-9]*,(NORTH|EAST|SOUTH|WEST)/)
+    if m.match(/^PLACE [0-9]*,[0-9]*,(NORTH|EAST|SOUTH|WEST)$/)
         params = m[6..m.size].split(",")
-        r.place(t,
+        robot.place(tabletop,
             params[0].to_i,
             params[1].to_i,
             CompassDirection.get_index_from_direction_text(params[2])
         )
-    elsif m.match(/(MOVE|LEFT|RIGHT|REPORT)/)
-        r.send(m.downcase)
+    elsif m.match(/^(MOVE|LEFT|RIGHT|REPORT)$/)
+        robot.send(m.downcase)
     # else
     #     puts("You are talking gibberish")
     end
 end
-
-# binding.pry
