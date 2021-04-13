@@ -1,0 +1,47 @@
+PLACE 7,8,EAST
+MOVE
+LEFT
+REPORT
+PLACE -3,2,SOUTH
+MELROSE PLACE
+PLACENTA
+place 3,5,WEST
+place 1,2,North
+PLACE 3,3,SOUTH
+MOVe
+move
+Move
+left
+Left
+LEFT 
+ LEFT
+right
+right
+Right
+RIGHT 
+RIGHT 
+ RIGHT
+ RIGHT
+ right
+ Right
+7eft
+report
+PLACE 4,4,west
+PLACE 2.2,EAST
+PLACE 1.2,3,SOUTH
+report
+LEFT
+MOVE
+LEFT
+
+
+REPORT
+
+MOVE
+MOVE
+LEFT
+MOVE
+MOVE
+REPORT
+Output: 4,3,SOUTH
+Output: 2,5,SOUTH

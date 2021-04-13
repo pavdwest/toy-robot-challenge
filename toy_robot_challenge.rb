@@ -26,7 +26,7 @@ module CompassDirection
     ]
 
     def self.turn_from_direction(currently_facing, turn_left = true)
-        (DIRECTIONS.index(currently_facing) + DIRECTIONS.length + (turn_left ? -1 : 1)) % DIRECTIONS.length
+        (currently_facing + DIRECTIONS.length + (turn_left ? -1 : 1)) % DIRECTIONS.length
     end
 
     def self.get_index_from_direction_text(direction_text)
@@ -60,8 +60,7 @@ class Tabletop
     end
 
     def is_in_bounds(location)
-        location.x <= @extent.x && location.y <= @extent.y &&
-        location.x >= 0 && location.y >= 0
+        location.x.between?(0, @extent.x) && location.y.between?(0, @extent.y)
     end
 end
 
@@ -80,22 +79,21 @@ class Robot
 
     def move()
         if @has_been_placed
-            move_delta = DeltaMovements::get_delta_movement_in_direction(@facing)
-            requested_location = Vector.new(@location.x + move_delta.x, @location.y + move_delta.y)
+            requested_location = @location + DeltaMovements::get_delta_movement_in_direction(@facing)
             @location = requested_location if @tabletop.is_in_bounds(requested_location)
         end
     end
 
     def left()
-        @facing = CompassDirection.turn_from_direction(@facing, true) if @has_been_placed
+        @facing = CompassDirection::turn_from_direction(@facing, true) if @has_been_placed
     end
 
     def right()
-        @facing = CompassDirection.turn_from_direction(@facing, false) if @has_been_placed
+        @facing = CompassDirection::turn_from_direction(@facing, false) if @has_been_placed
     end
 
     def report()
-        puts("Output: #{@location.x},#{@location.y},#{CompassDirection.get_direction_text_from_index(@facing)}") if @has_been_placed
+        puts("Output: #{@location.x},#{@location.y},#{CompassDirection::get_direction_text_from_index(@facing)}") if @has_been_placed
     end
 end
 
@@ -103,18 +101,25 @@ end
 tabletop = Tabletop.new(5, 5)
 robot = Robot.new()
 
-# Process moves
-File.readlines("moves3.txt", chomp: true).each do |m|
-    if m.match(/^PLACE [0-9]*,[0-9]*,(NORTH|EAST|SOUTH|WEST)$/)
-        params = m[6..m.size].split(",")
-        robot.place(tabletop,
-            params[0].to_i,
-            params[1].to_i,
-            CompassDirection.get_index_from_direction_text(params[2])
-        )
-    elsif m.match(/^(MOVE|LEFT|RIGHT|REPORT)$/)
-        robot.send(m.downcase)
-    # else
-    #     puts("You are talking gibberish")
+# Process moves. I'm tired now so fuck it that's my excuse.
+file_name = "moves_d.txt"
+
+if !File.exists?(file_name)
+    puts("Was expecting a file called #{file_name} in this directory. Aborting.")
+else
+    File.readlines(file_name, chomp: true).each do |m|
+        if m.match(/^PLACE [0-9]*,[0-9]*,(NORTH|EAST|SOUTH|WEST)$/)
+            params = m[6..m.size].split(",")
+            robot.place(tabletop,
+                params[0].to_i,
+                params[1].to_i,
+                CompassDirection::get_index_from_direction_text(params[2])
+            )
+        elsif m.match(/^(MOVE|LEFT|RIGHT|REPORT)$/)
+            robot.send(m.downcase)
+        # elsif m.match(/^Output: [0-9]*,[0-9]*,(NORTH|EAST|SOUTH|WEST)$/)
+        # else
+        #     puts("You are talking gibberish")
+        end
     end
 end
